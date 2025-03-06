@@ -5,7 +5,7 @@ This project was generated with java 22 for personal purposes. Currently, I am s
 
 ## Development Configuration
 
-Run with `local` profile. Navigate to `http://localhost:8080/swagger-ui/index.html`. The app will automatically will show the swagger url.
+Run with `local` profile. Navigate to `http://localhost:8080/swagger-ui/index.html`. The app will automatically show the swagger url.
 
 ## Build
 
