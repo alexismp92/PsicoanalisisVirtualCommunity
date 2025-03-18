@@ -254,3 +254,8 @@ INSERT INTO COMMUNITY_STS (COMMUNITY_STS_ID, COMM_STATUS_NAME) VALUES
 (NEXT VALUE FOR COMMUNITY_STS_SEQUENCE, 'PENDING'),
 (NEXT VALUE FOR COMMUNITY_STS_SEQUENCE, 'ACCEPTED'),
 (NEXT VALUE FOR COMMUNITY_STS_SEQUENCE, 'REJECTED');
+
+INSERT INTO EMAIL_CONFIG (EMAIL_ID, TYPE, EMAIL_FROM, EMAIL_TO, SUBJECT, MESSAGE) VALUES
+(NEXT VALUE FOR EMAIL_CONFIG_SEQUENCE, 'REGISTRATION_ADMIN', 'noreply@psicoanalisisvirtual.com', 'admins.psicoanalisisvirtual.com', 'New user registered', 'New therapist registered, please review the registration'),
+(NEXT VALUE FOR EMAIL_CONFIG_SEQUENCE, 'REGISTRATION_USER', 'noreply@psicoanalisisvirtual.com', null, 'Registration pending to review', 'Your registration is pending to review, we will notify you when it is accepted or rejected');
+

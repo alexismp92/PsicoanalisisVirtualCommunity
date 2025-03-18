@@ -10,6 +10,7 @@ import com.psicovirtual.community.exception.CommunityException;
 import com.psicovirtual.community.exception.NotFoundException;
 import com.psicovirtual.community.mapper.TherapistMapperI;
 import com.psicovirtual.community.service.bucket.IBucketOperations;
+import com.psicovirtual.community.service.email.IEmailOperations;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.psicovirtual.community.utils.UUIDUtils.generateUUUID;
+import static com.psicovirtual.community.utils.Constants.REG_USER;
+import static com.psicovirtual.community.utils.Utils.generateUUUID;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +33,7 @@ public class CommunityService {
     private final TherapistService therapistService;
     private final CommunityStatusService communityStatusService;
     private final IBucketOperations iBucketOperations;
+    private final IEmailOperations iEmailOperations;
 
     /**
      * Method to send a request to join to the community
@@ -89,16 +92,13 @@ public class CommunityService {
 
             var savedTherapist = therapistService.save(therapist);
 
+            sendEmails(savedTherapist.getEmail());
 
         } catch (NotFoundException ex) {
            log.error(ex.getMessage());
             throw new CommunityException(ex.getMessage());
 
         }
-
-        //SEND EMAIL TO THE ADMINS
-
-        //SEND EMAIL TO THE THERAPIST WITH THE REQUEST
 
         return true;
     }
@@ -138,4 +138,17 @@ public class CommunityService {
         }
     }
 
+    /**
+     * Method to send emails to the admins and the therapist
+     */
+    private void sendEmails(String email) {
+        try{
+            //SEND EMAIL TO THE ADMINS
+            iEmailOperations.sendEmail();
+            //SEND EMAIL TO THE THERAPIST WITH THE REQUEST
+            iEmailOperations.sendEmail(email,REG_USER);
+        } catch (NotFoundException ex) {
+            log.error(ex.getMessage());
+        }
+    }
 }

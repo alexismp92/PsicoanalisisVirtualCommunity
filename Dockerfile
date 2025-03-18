@@ -4,6 +4,10 @@ FROM openjdk:22-jdk
 # Set the working directory in the container
 WORKDIR /app
 
+LABEL org.opencontainers.image.title="Psicoanalisis Virtual Community" \
+      org.opencontainers.image.description="Psicoanalisis Virtual Community Service" \
+      org.opencontainers.image.authors="Alexis Mercado"
+
 # Copy the project JAR file into the container at /app
 COPY target/PsicoanalisisVirtualCommunity-*.jar app/PsicoanalisisVirtualCommunity.jar
 
