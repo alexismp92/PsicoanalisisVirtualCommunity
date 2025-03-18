@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.psicovirtual.community.utils.Constants.*;
+import static com.psicovirtual.community.utils.Utils.getExtension;
 
 @RestController
 @RequiredArgsConstructor
@@ -79,12 +80,8 @@ public class CommunityController {
         var filenames = files.stream().map(file -> file.getOriginalFilename()).collect(Collectors.toSet());
 
         for(String name : filenames){
-            var lastDotIndex = name.lastIndexOf(DOT);
-            if (lastDotIndex <= 0){
-                throw new CommunityException("Invalid file extension");
-            }
 
-            var extension = name.substring(lastDotIndex + 1);
+            final var extension = getExtension(name);
 
             if(!extension.equalsIgnoreCase(EXT_PDF) && !extension.equalsIgnoreCase((EXT_JPEG)) &&
                     !extension.equalsIgnoreCase(EXT_JPG) && !extension.equalsIgnoreCase(EXT_PNG)){
