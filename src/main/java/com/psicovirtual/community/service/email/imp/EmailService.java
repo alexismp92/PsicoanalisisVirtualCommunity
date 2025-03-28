@@ -1,5 +1,6 @@
 package com.psicovirtual.community.service.email.imp;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.psicovirtual.community.component.EmailProperties;
 
 import com.psicovirtual.community.dao.imp.EmailConfigService;
@@ -8,20 +9,20 @@ import com.psicovirtual.community.exception.NotFoundException;
 import com.psicovirtual.community.service.email.IEmailOperations;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
 import static com.psicovirtual.community.utils.Constants.REG_ADMIN;
+import static com.psicovirtual.community.utils.ConversionUtils.parseObjectToJson;
 
 
 @Service
 @AllArgsConstructor
 @Slf4j
-@Profile({"local"})
 public class EmailService implements IEmailOperations {
 
     private final EmailProperties emailProperties;
@@ -29,7 +30,7 @@ public class EmailService implements IEmailOperations {
     private final WebClient.Builder webClientBuilder;
 
 
-    public void sendEmail() throws NotFoundException {
+    public void sendEmail() throws NotFoundException, JsonProcessingException {
 
         var emailConfig = emailConfigService.getEmailByType(REG_ADMIN);
 
@@ -48,11 +49,11 @@ public class EmailService implements IEmailOperations {
     }
 
     @Override
-    public void sendEmail(String email, String type) throws NotFoundException {
+    public void sendEmail(String email, String type) throws NotFoundException, JsonProcessingException {
         var emailConfig = emailConfigService.getEmailByType(type);
 
         log.info("Sending email to: " + email);
-        log.info("From: " + email);
+        log.info("From: " + emailConfig.getEmailFrom());
         log.info("Subject: " + emailConfig.getSubject());
         log.info("Message: " + emailConfig.getMessage());
 
@@ -68,17 +69,21 @@ public class EmailService implements IEmailOperations {
      * Method to send and httpRequest with the email details
      * @param emailDTO
      */
-    private void sendHttpRequest(EmailDTO emailDTO){
+    private void sendHttpRequest(EmailDTO emailDTO) throws JsonProcessingException {
         log.info("Creating web client to send email");
         final var webClient = webClientBuilder.baseUrl(emailProperties.getBaseUrl()).build();
 
+        var json = parseObjectToJson(emailDTO);
+
         webClient.post()
                 .uri(emailProperties.getPath())
-                .body(Mono.just(emailDTO), String.class)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(json))
                 .retrieve()
-                .bodyToMono(String.class);
-
-        log.info("email sent");
+                .bodyToMono(String.class)
+                .doOnSuccess(response -> log.info("Email sent successfully"))
+                .doOnError(error -> log.error("Error sending email: ", error))
+                .subscribe();;
     }
 
 }

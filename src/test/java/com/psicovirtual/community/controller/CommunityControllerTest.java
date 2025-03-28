@@ -35,7 +35,7 @@ class CommunityControllerTest {
 
 
     @Test
-    void joinUs_Success() throws Exception {
+    void joinUsSuccess() throws Exception {
         JoinRequest joinRequest = new JoinRequest();
 
         MockMultipartFile file = new MockMultipartFile("test", "test.pdf", "text/pdf", "content 1".getBytes());
@@ -53,7 +53,7 @@ class CommunityControllerTest {
     }
 
     @Test
-    void joinUs_InvalidJsonFormat(){
+    void joinUsInvalidJsonFormat(){
         JoinRequest joinRequest = new JoinRequest();
         MockMultipartFile file = new MockMultipartFile("test", "test.pdf", "text/pdf", "content 1".getBytes());
         joinRequest.setFiles(new HashSet<>(Collections.singletonList(file)));
@@ -63,7 +63,7 @@ class CommunityControllerTest {
     }
 
     @Test
-    void joinUs_NoFilesProvided() {
+    void joinUsNoFilesProvided() {
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setFiles(null);
         joinRequest.setTherapistDTO("{}");
@@ -78,7 +78,7 @@ class CommunityControllerTest {
     }
 
     @Test
-    void joinUs_TooManyFiles() {
+    void joinUsTooManyFiles() {
         Set<MultipartFile> files = new HashSet<>();
         for (int i = 0; i < 6; i++) {
             MockMultipartFile file = new MockMultipartFile("test"+i, "test"+1+".pdf", "text/pdf", "content 1".getBytes());
@@ -101,7 +101,7 @@ class CommunityControllerTest {
     }
 
     @Test
-    void joinUs_FileSizeExceeded() {
+    void joinUsFileSizeExceeded() {
         MockMultipartFile file = new MockMultipartFile("test", "test.pdf", "text/pdf", new byte[1024 * 1024 * 11]);
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setFiles(new HashSet<>(Collections.singletonList(file)));
@@ -120,7 +120,7 @@ class CommunityControllerTest {
     }
 
     @Test
-    void joinUs_InvalidFileExtension() {
+    void joinUsInvalidFileExtension() {
         MockMultipartFile file = new MockMultipartFile("test", "test", "text/pdf", new byte[1024 * 1024 * 1]);
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setFiles(new HashSet<>(Collections.singletonList(file)));
@@ -138,7 +138,7 @@ class CommunityControllerTest {
     }
 
     @Test
-    void joinUs_FileExtensionNotAllowed() {
+    void joinUsFileExtensionNotAllowed() {
         MockMultipartFile file = new MockMultipartFile("test", "test.xml", "text/xml", new byte[1024 * 1024 * 1]);
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setFiles(new HashSet<>(Collections.singletonList(file)));

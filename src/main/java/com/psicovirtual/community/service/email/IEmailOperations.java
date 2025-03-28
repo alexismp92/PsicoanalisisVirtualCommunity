@@ -1,5 +1,6 @@
 package com.psicovirtual.community.service.email;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.psicovirtual.community.exception.NotFoundException;
 
 
@@ -10,7 +11,7 @@ public interface IEmailOperations {
      *
      * @throws NotFoundException
      */
-    void sendEmail() throws NotFoundException;
+    void sendEmail() throws NotFoundException, JsonProcessingException;
 
     /**
      * Email to the specified email address with the specified email type configured on the DB
@@ -19,5 +20,5 @@ public interface IEmailOperations {
      * @param type
      * @throws NotFoundException
      */
-    void sendEmail(String email, String type) throws NotFoundException;
+    void sendEmail(String email, String type) throws NotFoundException, JsonProcessingException;
 }

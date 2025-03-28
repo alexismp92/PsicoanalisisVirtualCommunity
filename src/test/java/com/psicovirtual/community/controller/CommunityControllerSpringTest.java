@@ -28,7 +28,7 @@ class CommunityControllerSpringTest {
     private CommunityController communityController;
 
     @Test
-    void joinUs_Success() throws Exception {
+    void joinUsSuccess() throws Exception {
 
         JoinRequest joinRequest = new JoinRequest();
 
@@ -49,7 +49,7 @@ class CommunityControllerSpringTest {
     }
 
     @Test
-    void joinUs_InvalidFileExtension() throws Exception {
+    void joinUsInvalidFileExtension() throws Exception {
 
         JoinRequest joinRequest = new JoinRequest();
 

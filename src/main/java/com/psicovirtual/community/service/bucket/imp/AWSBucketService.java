@@ -63,11 +63,12 @@ public class AWSBucketService implements IBucketOperations {
     @Override
     public Set<String> upload(Set<MultipartFile> files, String uuid) throws CommunityException {
         Set<String> uploadedFiles = new HashSet<>();
+        Path filePath = null;
         try{
             isBucketExists(s3Properties.getBucketName());
             for (MultipartFile file : files) {
                     log.info("Uploading file: " + file.getOriginalFilename());
-                    Path filePath = generateTmpFile(file, uuid);
+                    filePath = generateTmpFile(file, uuid);
                     final var s3Key = String.join(SLASH, uuid,file.getOriginalFilename());
                     s3Client.putObject(PutObjectRequest.builder()
                                     .bucket(s3Properties.getBucketName())
@@ -76,6 +77,7 @@ public class AWSBucketService implements IBucketOperations {
                                     .ssekmsKeyId(s3Properties.getKmsKey())
                                     .build(),filePath);
                     log.info("File uploaded: " + s3Key);
+                    Files.delete(filePath);
                     uploadedFiles.add(s3Key);
             }
         } catch (IOException | S3Exception e) {

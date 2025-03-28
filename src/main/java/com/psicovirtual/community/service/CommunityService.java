@@ -1,5 +1,6 @@
 package com.psicovirtual.community.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.psicovirtual.community.dao.imp.*;
 import com.psicovirtual.community.dto.TherapistDTO;
 
@@ -147,7 +148,7 @@ public class CommunityService {
             iEmailOperations.sendEmail();
             //SEND EMAIL TO THE THERAPIST WITH THE REQUEST
             iEmailOperations.sendEmail(email,REG_USER);
-        } catch (NotFoundException ex) {
+        } catch (NotFoundException | JsonProcessingException ex) {
             log.error(ex.getMessage());
         }
     }
