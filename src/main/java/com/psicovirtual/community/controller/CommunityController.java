@@ -34,6 +34,12 @@ public class CommunityController {
 
     private final CommunityService communityService;
 
+    /**
+     * Method to send a request to join to the community
+     * @param request
+     * @return ResponseEntity<Void>
+     * @throws CommunityException
+     */
     @PostMapping(value = "/join", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "Send a request to join to to the community",
             description = "Method which registers the user request to join to the community and save the therapist data",
@@ -60,6 +66,37 @@ public class CommunityController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    /**
+     * Method to update the community request status
+     * @return ResponseEntity<Set<TherapistDTO>>
+     */
+    @PatchMapping(value = "/update-status", consumes = {MediaType.APPLICATION_JSON_VALUE} , produces = {MediaType.APPLICATION_JSON_VALUE})
+    @Operation(summary = "Update community requests status",
+            description = "Method which update the community request status to approve or deny the request. Returns the updated therapist data",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Request updated successfully"),
+                    @ApiResponse(responseCode = "400", description = "Bad request"),
+                    @ApiResponse(responseCode = "500", description = "Internal server error")
+            })
+    public ResponseEntity<Set<TherapistDTO>> updateStatusRequest(@RequestBody Set<TherapistDTO> therapistDTOs) throws CommunityException {
+
+        if(therapistDTOs.isEmpty()){
+            throw new CommunityException("Therapist list is empty");
+        }
+
+        log.info("Community requests to update " + therapistDTOs.size());
+
+        var communityReqDTOs = therapistDTOs.stream()
+                .map(therapistDTO -> therapistDTO.getCommunityRequest()).collect(Collectors.toSet());
+
+        var result = this.communityService.updateCommunityStatus(communityReqDTOs);
+
+
+        return new ResponseEntity<>(result,HttpStatus.OK);
+
+    }
+
 
     /**
      * Method to validate the files received in the request

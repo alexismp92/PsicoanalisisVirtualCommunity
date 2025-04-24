@@ -1,10 +1,12 @@
 # Use an official OpenJDK runtime as a parent image
-FROM openjdk:22-jdk
+#FROM openjdk:22-jdk
+FROM alpine/java:22-jdk
 
 # Set the working directory in the container
 WORKDIR /app
 
 LABEL org.opencontainers.image.title="Psicoanalisis Virtual Community" \
+      org.opencontainers.image.name="Psicoanalisis Virtual Community" \
       org.opencontainers.image.description="Psicoanalisis Virtual Community Service" \
       org.opencontainers.image.authors="Alexis Mercado"
 

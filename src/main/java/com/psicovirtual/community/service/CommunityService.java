@@ -1,11 +1,14 @@
 package com.psicovirtual.community.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.psicovirtual.community.dao.imp.*;
 import com.psicovirtual.community.dto.TherapistDTO;
 
+import com.psicovirtual.community.dto.CommunityReqDTO;
 import com.psicovirtual.community.entities.CommunityReq;
 import com.psicovirtual.community.entities.Education;
 import com.psicovirtual.community.enums.CommunityStatusEnum;
+import com.psicovirtual.community.enums.EmailTypeEnum;
 import com.psicovirtual.community.exception.CommunityException;
 import com.psicovirtual.community.exception.NotFoundException;
 import com.psicovirtual.community.mapper.TherapistMapperI;
@@ -20,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.psicovirtual.community.utils.Constants.REG_USER;
 import static com.psicovirtual.community.utils.Utils.generateUUUID;
 
 @Service
@@ -32,6 +34,7 @@ public class CommunityService {
     private final CountryService countryService;
     private final TherapistService therapistService;
     private final CommunityStatusService communityStatusService;
+    private final CommunityReqService communityReqService;
     private final IBucketOperations iBucketOperations;
     private final IEmailOperations iEmailOperations;
 
@@ -92,7 +95,8 @@ public class CommunityService {
 
             var savedTherapist = therapistService.save(therapist);
 
-            sendEmails(savedTherapist.getEmail());
+            sendEmails(EmailTypeEnum.REG_ADMIN.name());
+            sendEmails(savedTherapist.getEmail(), EmailTypeEnum.REG_USER.name());
 
         } catch (NotFoundException ex) {
            log.error(ex.getMessage());
@@ -101,6 +105,78 @@ public class CommunityService {
         }
 
         return true;
+    }
+
+    /**
+     * Method to update the community request status
+     * @param communityReqDTOs
+     */
+    @Transactional
+    public Set<TherapistDTO> updateCommunityStatus(Set<CommunityReqDTO> communityReqDTOs) {
+
+        Set<TherapistDTO> updatedTherapists = new HashSet<>();
+
+        try {
+           var idsToFind = communityReqDTOs.stream().map(CommunityReqDTO::getCommunityReqId).collect(java.util.stream.Collectors.toSet());
+           var savedCommRequests = communityReqService.findAllById(idsToFind);
+
+            for (var request : savedCommRequests) {
+
+                var opCommunityRequestDTO = communityReqDTOs.stream().filter(req -> req.getCommunityReqId().equals(request.getCommunityReqId())).findFirst();
+                //Extract the values to update from the DTOs
+                if(opCommunityRequestDTO.isPresent()){
+                    var communityReqDTO = opCommunityRequestDTO.get();
+                    var statusToUpdate =  communityStatusService.getCommunityStatus(communityReqDTO.getCommunityStatus());
+                    request.setCommunityStatus(statusToUpdate);
+
+                    if(CommunityStatusEnum.REJECTED.equals(statusToUpdate.getCommStatusName())){
+                        request.setRejectedReason(communityReqDTO.getRejectedReason());
+                    }
+
+                } else {
+                    log.warn("Community request id not found in the list of requests to update");
+                }
+            }
+
+            communityReqService.save(savedCommRequests);
+
+            updatedTherapists.addAll(getAllTherapistById(idsToFind));
+
+            log.info("Community request updated successfully. " + updatedTherapists.size() + " therapists updated");
+
+            //SEND EMAIL TO THE USERS
+            for (var therapist : updatedTherapists) {
+                if(therapist.getCommunityRequest().getCommunityStatus().equals(CommunityStatusEnum.APPROVED.name())){
+                    sendEmails(therapist.getEmail(), EmailTypeEnum.APPROVED_USER.name());
+                } else {
+                    sendEmails(therapist.getEmail(), EmailTypeEnum.REJECTED_USER.name());
+                }
+            }
+
+        } catch (NotFoundException ex) {
+            log.error(ex.getMessage());
+        }
+
+        return updatedTherapists;
+    }
+
+    /**
+     * Method to get all the therapists by its ID
+     * @param ids
+     * @return Set<TherapistDTO>
+     */
+    public Set<TherapistDTO> getAllTherapistById(Set<Long> ids){
+        Set<TherapistDTO> therapistList = new HashSet<>();
+        var therapists = therapistService.findAllById(ids);
+
+        for(var therapist : therapists){
+            var therapistDTO = TherapistMapperI.INSTANCE.EntityToTherapistDTO(therapist);
+            therapistList.add(therapistDTO);
+        }
+
+        log.info("Found " + therapistList.size() + " therapists");
+        return therapistList;
+
     }
 
 
@@ -113,7 +189,7 @@ public class CommunityService {
         log.info("validate if therapist already was registered " + email);
         boolean isExist = false;
         try {
-            var therapist = therapistService.getByEmail(email);
+            var therapist = therapistService.findByEmail(email);
             isExist = true;
         } catch (NotFoundException e) {
             log.info("Therapist not registered");
@@ -139,16 +215,29 @@ public class CommunityService {
     }
 
     /**
-     * Method to send emails to the admins and the therapist
+     * Method to send emails to the the admins
+     * @param emailType
      */
-    private void sendEmails(String email) {
+    private void sendEmails(String emailType) {
         try{
             //SEND EMAIL TO THE ADMINS
-            iEmailOperations.sendEmail();
-            //SEND EMAIL TO THE THERAPIST WITH THE REQUEST
-            iEmailOperations.sendEmail(email,REG_USER);
-        } catch (NotFoundException ex) {
+            iEmailOperations.sendAdminEmail(emailType);
+        } catch (NotFoundException | JsonProcessingException ex) {
             log.error(ex.getMessage());
         }
     }
+
+    /**
+     * Method to send emails to the therapist
+     * @param email
+     * @param emailType
+     */
+    private void sendEmails(String email, String emailType) {
+        try{
+            iEmailOperations.sendEmail(email,emailType);
+        } catch (NotFoundException | JsonProcessingException ex) {
+            log.error(ex.getMessage());
+        }
+    }
+
 }

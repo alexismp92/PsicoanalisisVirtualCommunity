@@ -1,6 +1,7 @@
 package com.psicovirtual.community.controller;
 
 import com.psicovirtual.community.dto.JoinRequest;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,6 +15,7 @@ import java.util.Collections;
 import java.util.HashSet;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -24,11 +26,9 @@ class CommunityControllerSpringTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private CommunityController communityController;
-
     @Test
-    void joinUs_Success() throws Exception {
+    @Order(1)
+    void joinUsSuccess() throws Exception {
 
         JoinRequest joinRequest = new JoinRequest();
 
@@ -49,7 +49,8 @@ class CommunityControllerSpringTest {
     }
 
     @Test
-    void joinUs_InvalidFileExtension() throws Exception {
+    @Order(2)
+    void joinUsInvalidFileExtension() throws Exception {
 
         JoinRequest joinRequest = new JoinRequest();
 
@@ -69,6 +70,46 @@ class CommunityControllerSpringTest {
 
     }
 
+    @Test
+    @Order(3)
+    void updateCommunityStatusAcceptedTest() throws Exception {
+
+        String json = "[{\"therapistId\":1,\"firstName\":\"JOHN\",\"lastName\":\"DOE\",\"secLastName\":\"\",\"dateOfBirth\":\"1990-10-07\",\"email\":\"test@test.com\",\"confirmEmail\":\"test@test.com\",\"gender\":\"MALE\",\"country\":\"US\"," +
+                "\"educations\":[{\"educationId\":0,\"institution\":\"MIT\",\"graduationYear\":2010,\"certificateFilename\":\"test.pdf\",\"country\":\"US\"}],\"yearsOfExperience\":5,\"experienceDesc\":\"experience description\",\"motivationDesc\":\"motivation description\"," +
+                "\"rate\":20,\"interests\":{\"interestId\":0,\"isCourse\":true,\"isStudyGroups\":true,\"isSupervisions\":true,\"isSocialMediaPromotions\":true}, \"communityRequest\":{\"communityReqId\":1,\"communityStatus\":\"APPROVED\"}," +
+                "\"isMigrationExperience\":true,\"isOpenToAdjustRate\":true}]";
+
+
+        mockMvc.perform(patch("/community/update-status")
+                        .contentType(MediaType.APPLICATION_JSON).
+                        content(json))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(4)
+    void updateCommunityStatusRejectedTest() throws Exception {
+
+        String json = "[{\"therapistId\":1,\"firstName\":\"JOHN\",\"lastName\":\"DOE\",\"secLastName\":\"\",\"dateOfBirth\":\"1990-10-07\",\"email\":\"test@test.com\",\"confirmEmail\":\"test@test.com\",\"gender\":\"MALE\",\"country\":\"US\"," +
+                "\"educations\":[{\"educationId\":0,\"institution\":\"MIT\",\"graduationYear\":2010,\"certificateFilename\":\"test.pdf\",\"country\":\"US\"}],\"yearsOfExperience\":5,\"experienceDesc\":\"experience description\",\"motivationDesc\":\"motivation description\"," +
+                "\"rate\":20,\"interests\":{\"interestId\":0,\"isCourse\":true,\"isStudyGroups\":true,\"isSupervisions\":true,\"isSocialMediaPromotions\":true}, \"communityRequest\":{\"communityReqId\":1,\"communityStatus\":\"REJECTED\",\"rejectedReason\":\"therapist does not have a bachelors degree\"}," +
+                "\"isMigrationExperience\":true,\"isOpenToAdjustRate\":true}]";
+
+        mockMvc.perform(patch("/community/update-status")
+                        .contentType(MediaType.APPLICATION_JSON).
+                        content(json))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(5)
+    void updateEmptyCommunityStatusTest() throws Exception {
+        String json = "[]";
+        mockMvc.perform(patch("/community/update-status")
+                        .contentType(MediaType.APPLICATION_JSON).
+                        content(json))
+                .andExpect(status().isBadRequest());
+    }
 
 
 }

@@ -1,5 +1,6 @@
 package com.psicovirtual.community.mapper;
 
+import com.psicovirtual.community.dto.CommunityReqDTO;
 import com.psicovirtual.community.dto.EducationDTO;
 import com.psicovirtual.community.dto.InterestDTO;
 import com.psicovirtual.community.entities.*;
@@ -34,9 +35,15 @@ public interface TherapistMapperI {
 
     Interest InterestDTOToEntity(InterestDTO interestDTO);
 
+    @Mapping(source = "gender", target = "gender")
+    @Mapping(source = "country", target = "country")
+    @Mapping(source = "educations", target = "educations")
+    @Mapping(source = "interests", target = "interests")
+    @Mapping(source = "communityRequest", target = "communityRequest")
+    TherapistDTO EntityToTherapistDTO(Therapist therapist);
 
     @AfterMapping
-    default void linkPersonToEducation(@MappingTarget Therapist therapist) {
+    default void mapTherapist(@MappingTarget Therapist therapist) {
         if (therapist.getEducations() != null) {
             therapist.getEducations().forEach(education -> education.setTherapist(therapist));
         }
@@ -48,5 +55,23 @@ public interface TherapistMapperI {
         }
     }
 
+    default String mapGenderToDTO(Gender gender) {
+        return gender != null ? gender.getGenderName() : null;
+    }
+
+    default String mapCountryToDTO(Country country) {
+        return country != null ? country.getIso2() : null;
+    }
+
+    default CommunityReqDTO mapCommunityStatusToDTO(CommunityReq communityReq) {
+        if(communityReq != null){
+            return CommunityReqDTO.builder()
+                    .communityReqId(communityReq.getCommunityReqId())
+                    .communityStatus(communityReq.getCommunityStatus().getCommStatusName())
+                    .build();
+        }else{
+            return null;
+        }
+    }
 
 }
