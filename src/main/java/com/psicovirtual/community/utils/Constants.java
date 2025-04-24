@@ -12,7 +12,5 @@ public class Constants {
     public final static String EXT_JPEG = "jpeg";
     public final static String EXT_PNG = "png";
     public final static String JAVA_IO_TMPDIR = "java.io.tmpdir";
-    public final static String REG_ADMIN= "REGISTRATION_ADMIN";
-    public final static String REG_USER= "REGISTRATION_USER";
 
 }

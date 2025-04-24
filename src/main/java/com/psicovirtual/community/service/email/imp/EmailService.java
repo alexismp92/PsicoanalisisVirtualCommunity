@@ -16,7 +16,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Set;
 
-import static com.psicovirtual.community.utils.Constants.REG_ADMIN;
 import static com.psicovirtual.community.utils.ConversionUtils.parseObjectToJson;
 
 
@@ -30,9 +29,9 @@ public class EmailService implements IEmailOperations {
     private final WebClient.Builder webClientBuilder;
 
 
-    public void sendEmail() throws NotFoundException, JsonProcessingException {
+    public void sendAdminEmail(String type) throws NotFoundException, JsonProcessingException {
 
-        var emailConfig = emailConfigService.getEmailByType(REG_ADMIN);
+        var emailConfig = emailConfigService.getEmailByType(type);
 
         log.info("Sending email to: " + emailConfig.getEmailTo());
         log.info("From: " + emailConfig.getEmailFrom());

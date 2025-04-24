@@ -11,7 +11,7 @@ public interface IEmailOperations {
      *
      * @throws NotFoundException
      */
-    void sendEmail() throws NotFoundException, JsonProcessingException;
+    void sendAdminEmail(String type) throws NotFoundException, JsonProcessingException;
 
     /**
      * Email to the specified email address with the specified email type configured on the DB

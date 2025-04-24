@@ -8,6 +8,7 @@ import com.psicovirtual.community.dto.CommunityReqDTO;
 import com.psicovirtual.community.entities.CommunityReq;
 import com.psicovirtual.community.entities.Education;
 import com.psicovirtual.community.enums.CommunityStatusEnum;
+import com.psicovirtual.community.enums.EmailTypeEnum;
 import com.psicovirtual.community.exception.CommunityException;
 import com.psicovirtual.community.exception.NotFoundException;
 import com.psicovirtual.community.mapper.TherapistMapperI;
@@ -22,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.psicovirtual.community.utils.Constants.REG_USER;
 import static com.psicovirtual.community.utils.Utils.generateUUUID;
 
 @Service
@@ -95,7 +95,8 @@ public class CommunityService {
 
             var savedTherapist = therapistService.save(therapist);
 
-            sendEmails(savedTherapist.getEmail());
+            sendEmails(EmailTypeEnum.REG_ADMIN.name());
+            sendEmails(savedTherapist.getEmail(), EmailTypeEnum.REG_USER.name());
 
         } catch (NotFoundException ex) {
            log.error(ex.getMessage());
@@ -142,6 +143,15 @@ public class CommunityService {
             updatedTherapists.addAll(getAllTherapistById(idsToFind));
 
             log.info("Community request updated successfully. " + updatedTherapists.size() + " therapists updated");
+
+            //SEND EMAIL TO THE USERS
+            for (var therapist : updatedTherapists) {
+                if(therapist.getCommunityRequest().getCommunityStatus().equals(CommunityStatusEnum.APPROVED.name())){
+                    sendEmails(therapist.getEmail(), EmailTypeEnum.APPROVED_USER.name());
+                } else {
+                    sendEmails(therapist.getEmail(), EmailTypeEnum.REJECTED_USER.name());
+                }
+            }
 
         } catch (NotFoundException ex) {
             log.error(ex.getMessage());
@@ -205,16 +215,29 @@ public class CommunityService {
     }
 
     /**
-     * Method to send emails to the admins and the therapist
+     * Method to send emails to the the admins
+     * @param emailType
      */
-    private void sendEmails(String email) {
+    private void sendEmails(String emailType) {
         try{
             //SEND EMAIL TO THE ADMINS
-            iEmailOperations.sendEmail();
-            //SEND EMAIL TO THE THERAPIST WITH THE REQUEST
-            iEmailOperations.sendEmail(email,REG_USER);
+            iEmailOperations.sendAdminEmail(emailType);
         } catch (NotFoundException | JsonProcessingException ex) {
             log.error(ex.getMessage());
         }
     }
+
+    /**
+     * Method to send emails to the therapist
+     * @param email
+     * @param emailType
+     */
+    private void sendEmails(String email, String emailType) {
+        try{
+            iEmailOperations.sendEmail(email,emailType);
+        } catch (NotFoundException | JsonProcessingException ex) {
+            log.error(ex.getMessage());
+        }
+    }
+
 }
