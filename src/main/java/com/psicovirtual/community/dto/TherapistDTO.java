@@ -1,17 +1,15 @@
 package com.psicovirtual.community.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.jackson.Jacksonized;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 
@@ -43,6 +41,8 @@ public class TherapistDTO {
     @NotBlank
     @Size(min = 2, max = 2, message = "country must be iso 2 format")
     private String country;
+    @DateTimeFormat(pattern = "DD-MM-YYYY HH:mm:ss")
+    private LocalDateTime registrationDate;
     @Valid
     private Set<EducationDTO> educations;
     @PositiveOrZero
@@ -59,4 +59,5 @@ public class TherapistDTO {
     private Boolean isMigrationExperience;
     private Boolean isOpenToAdjustRate;
     private InterestDTO interests;
+    private CommunityReqDTO communityRequest;
 }

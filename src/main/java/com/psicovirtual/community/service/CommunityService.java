@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.psicovirtual.community.dao.imp.*;
 import com.psicovirtual.community.dto.TherapistDTO;
 
+import com.psicovirtual.community.dto.CommunityReqDTO;
 import com.psicovirtual.community.entities.CommunityReq;
 import com.psicovirtual.community.entities.Education;
 import com.psicovirtual.community.enums.CommunityStatusEnum;
@@ -33,6 +34,7 @@ public class CommunityService {
     private final CountryService countryService;
     private final TherapistService therapistService;
     private final CommunityStatusService communityStatusService;
+    private final CommunityReqService communityReqService;
     private final IBucketOperations iBucketOperations;
     private final IEmailOperations iEmailOperations;
 
@@ -104,6 +106,69 @@ public class CommunityService {
         return true;
     }
 
+    /**
+     * Method to update the community request status
+     * @param communityReqDTOs
+     */
+    @Transactional
+    public Set<TherapistDTO> updateCommunityStatus(Set<CommunityReqDTO> communityReqDTOs) {
+
+        Set<TherapistDTO> updatedTherapists = new HashSet<>();
+
+        try {
+           var idsToFind = communityReqDTOs.stream().map(CommunityReqDTO::getCommunityReqId).collect(java.util.stream.Collectors.toSet());
+           var savedCommRequests = communityReqService.findAllById(idsToFind);
+
+            for (var request : savedCommRequests) {
+
+                var opCommunityRequestDTO = communityReqDTOs.stream().filter(req -> req.getCommunityReqId().equals(request.getCommunityReqId())).findFirst();
+                //Extract the values to update from the DTOs
+                if(opCommunityRequestDTO.isPresent()){
+                    var communityReqDTO = opCommunityRequestDTO.get();
+                    var statusToUpdate =  communityStatusService.getCommunityStatus(communityReqDTO.getCommunityStatus());
+                    request.setCommunityStatus(statusToUpdate);
+
+                    if(CommunityStatusEnum.REJECTED.equals(statusToUpdate.getCommStatusName())){
+                        request.setRejectedReason(communityReqDTO.getRejectedReason());
+                    }
+
+                } else {
+                    log.warn("Community request id not found in the list of requests to update");
+                }
+            }
+
+            communityReqService.save(savedCommRequests);
+
+            updatedTherapists.addAll(getAllTherapistById(idsToFind));
+
+            log.info("Community request updated successfully. " + updatedTherapists.size() + " therapists updated");
+
+        } catch (NotFoundException ex) {
+            log.error(ex.getMessage());
+        }
+
+        return updatedTherapists;
+    }
+
+    /**
+     * Method to get all the therapists by its ID
+     * @param ids
+     * @return Set<TherapistDTO>
+     */
+    public Set<TherapistDTO> getAllTherapistById(Set<Long> ids){
+        Set<TherapistDTO> therapistList = new HashSet<>();
+        var therapists = therapistService.findAllById(ids);
+
+        for(var therapist : therapists){
+            var therapistDTO = TherapistMapperI.INSTANCE.EntityToTherapistDTO(therapist);
+            therapistList.add(therapistDTO);
+        }
+
+        log.info("Found " + therapistList.size() + " therapists");
+        return therapistList;
+
+    }
+
 
     /**
      * Method to validate if the therapist already was registered
@@ -114,7 +179,7 @@ public class CommunityService {
         log.info("validate if therapist already was registered " + email);
         boolean isExist = false;
         try {
-            var therapist = therapistService.getByEmail(email);
+            var therapist = therapistService.findByEmail(email);
             isExist = true;
         } catch (NotFoundException e) {
             log.info("Therapist not registered");
