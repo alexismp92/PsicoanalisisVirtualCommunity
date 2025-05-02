@@ -11,9 +11,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class EmailDTO {
-    private String emailFrom;
+public class EmailRequestDTO {
+    private String emailType;
     private Set<String> emails;
-    private String subject;
-    private String message;
 }

@@ -255,9 +255,3 @@ INSERT INTO COMMUNITY_STS (COMMUNITY_STS_ID, COMM_STATUS_NAME) VALUES
 (NEXT VALUE FOR COMMUNITY_STS_SEQUENCE, 'APPROVED'),
 (NEXT VALUE FOR COMMUNITY_STS_SEQUENCE, 'REJECTED');
 
-INSERT INTO EMAIL_CONFIG (EMAIL_ID, TYPE, EMAIL_FROM, EMAIL_TO, SUBJECT, MESSAGE) VALUES
-(NEXT VALUE FOR EMAIL_CONFIG_SEQUENCE, 'REG_ADMIN', 'noreply@psicoanalisisvirtual.com', 'admins@psicoanalisisvirtual.com', 'New user registered', '<html><body><p>New therapist registered, please review the registration.</p><img src=''cid:logo.jpg''></body></html>'),
-(NEXT VALUE FOR EMAIL_CONFIG_SEQUENCE, 'REG_USER', 'noreply@psicoanalisisvirtual.com', null, 'Registration pending to review', '<html><body><p>Your registration is pending to review, we will notify you when it is accepted or rejected.</p><img src=''cid:logo.jpg''></body></html>'),
-(NEXT VALUE FOR EMAIL_CONFIG_SEQUENCE, 'APPROVED_USER', 'noreply@psicoanalisisvirtual.com', null, 'Welcome to psicoanalisis virtual', '<html><body><p>Your registration request was approved. To start, please continue to our login portal.</p><img src=''cid:logo.jpg''></body></html>'),
-(NEXT VALUE FOR EMAIL_CONFIG_SEQUENCE, 'REJECTED_USER', 'noreply@psicoanalisisvirtual.com', null, 'Psicoanalisis Virtual Community Update', '<html><body><p>Unfortunately, your request to join to the community was rejected. We well keep you in touch for future opportunities with us.</p><img src=''cid:logo.jpg''></body></html>');
-

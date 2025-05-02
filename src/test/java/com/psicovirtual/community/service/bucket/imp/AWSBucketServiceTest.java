@@ -91,7 +91,7 @@ public class AWSBucketServiceTest {
     @Test
     public void testUploadS3Exception() {
         Set<MultipartFile> files = Set.of(multipartFile);
-        when(multipartFile.getOriginalFilename()).thenReturn("test-file.txt");
+        when(multipartFile.getOriginalFilename()).thenReturn("test-fileEx.txt");
         when(s3Properties.getBucketName()).thenReturn("test-bucket");
 
         assertThrows(CommunityException.class, () -> awsBucketService.upload(files, "test-uuid"));
