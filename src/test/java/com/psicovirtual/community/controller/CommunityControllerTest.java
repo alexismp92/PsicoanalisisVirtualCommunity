@@ -47,7 +47,7 @@ class CommunityControllerTest {
         joinRequest.setTherapistDTO(json);
 
         when(communityService.sendJoinRequest(any(TherapistDTO.class), any(Set.class))).thenReturn(true);
-        ResponseEntity<Void> response = communityController.joinUs(joinRequest);
+        ResponseEntity<Void> response = communityController.joinRequest(joinRequest);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(communityService, times(1)).sendJoinRequest(any(TherapistDTO.class), any(Set.class));
     }
@@ -59,7 +59,7 @@ class CommunityControllerTest {
         joinRequest.setFiles(new HashSet<>(Collections.singletonList(file)));
         joinRequest.setTherapistDTO("invalid");
 
-        assertThrows(CommunityException.class, () -> communityController.joinUs(joinRequest));
+        assertThrows(CommunityException.class, () -> communityController.joinRequest(joinRequest));
     }
 
     @Test
@@ -69,7 +69,7 @@ class CommunityControllerTest {
         joinRequest.setTherapistDTO("{}");
         String msg = null;
         try {
-            communityController.joinUs(joinRequest);
+            communityController.joinRequest(joinRequest);
         } catch (CommunityException e) {
             msg = e.getMessage();
             assertEquals(e.getMessage(),"Files not found");
@@ -91,7 +91,7 @@ class CommunityControllerTest {
 
 
         try {
-            communityController.joinUs(joinRequest);
+            communityController.joinRequest(joinRequest);
         } catch (CommunityException e) {
             msg = e.getMessage();
             assertEquals(e.getMessage(),"Number of files is invalid");
@@ -109,7 +109,7 @@ class CommunityControllerTest {
         String msg = null;
 
         try {
-            communityController.joinUs(joinRequest);
+            communityController.joinRequest(joinRequest);
         } catch (CommunityException e) {
             msg = e.getMessage();
             assertEquals(e.getMessage(),"File size not allowed");
@@ -129,7 +129,7 @@ class CommunityControllerTest {
         String msg = null;
 
         try {
-            communityController.joinUs(joinRequest);
+            communityController.joinRequest(joinRequest);
         } catch (CommunityException e) {
             msg = e.getMessage();
             assertEquals(e.getMessage(),"Invalid file extension");
@@ -147,7 +147,7 @@ class CommunityControllerTest {
         String msg = null;
 
         try {
-            communityController.joinUs(joinRequest);
+            communityController.joinRequest(joinRequest);
         } catch (CommunityException e) {
             msg = e.getMessage();
             assertEquals(e.getMessage(),"File extension is not allowed");

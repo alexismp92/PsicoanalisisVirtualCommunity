@@ -40,7 +40,7 @@ public class CommunityController {
      * @return ResponseEntity<Void>
      * @throws CommunityException
      */
-    @PostMapping(value = "/join", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value = "/join-request", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "Send a request to join to to the community",
             description = "Method which registers the user request to join to the community and save the therapist data",
             responses = {
@@ -48,7 +48,7 @@ public class CommunityController {
                 @ApiResponse(responseCode = "400", description = "Bad request"),
                 @ApiResponse(responseCode = "500", description = "Internal server error")
             })
-       public ResponseEntity<Void> joinUs(@ModelAttribute JoinRequest request) throws CommunityException {
+       public ResponseEntity<Void> joinRequest(@ModelAttribute JoinRequest request) throws CommunityException {
 
         fileValidator(request.getFiles());
 
@@ -71,7 +71,7 @@ public class CommunityController {
      * Method to update the community request status
      * @return ResponseEntity<Set<TherapistDTO>>
      */
-    @PatchMapping(value = "/update-status", consumes = {MediaType.APPLICATION_JSON_VALUE} , produces = {MediaType.APPLICATION_JSON_VALUE})
+    @PatchMapping(value = "/join-request/status", consumes = {MediaType.APPLICATION_JSON_VALUE} , produces = {MediaType.APPLICATION_JSON_VALUE})
     @Operation(summary = "Update community requests status",
             description = "Method which update the community request status to approve or deny the request. Returns the updated therapist data",
             responses = {

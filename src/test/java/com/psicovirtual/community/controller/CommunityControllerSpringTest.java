@@ -40,7 +40,7 @@ class CommunityControllerSpringTest {
         joinRequest.setFiles(new HashSet<>(Collections.singletonList(file)));
         joinRequest.setTherapistDTO(json);
 
-        mockMvc.perform(multipart("/community/join")
+        mockMvc.perform(multipart("/community/join-request")
                         .file(file)
                         .param("therapistDTO", joinRequest.getTherapistDTO())
                         .contentType(MediaType.MULTIPART_FORM_DATA))
@@ -62,7 +62,7 @@ class CommunityControllerSpringTest {
         joinRequest.setFiles(new HashSet<>(Collections.singletonList(file)));
         joinRequest.setTherapistDTO(json);
 
-        mockMvc.perform(multipart("/community/join")
+        mockMvc.perform(multipart("/community/join-request")
                         .file(file)
                         .param("therapistDTO", joinRequest.getTherapistDTO())
                         .contentType(MediaType.MULTIPART_FORM_DATA))
@@ -80,7 +80,7 @@ class CommunityControllerSpringTest {
                 "\"isMigrationExperience\":true,\"isOpenToAdjustRate\":true}]";
 
 
-        mockMvc.perform(patch("/community/update-status")
+        mockMvc.perform(patch("/community/join-request/status")
                         .contentType(MediaType.APPLICATION_JSON).
                         content(json))
                 .andExpect(status().isOk());
@@ -95,7 +95,7 @@ class CommunityControllerSpringTest {
                 "\"rate\":20,\"interests\":{\"interestId\":0,\"isCourse\":true,\"isStudyGroups\":true,\"isSupervisions\":true,\"isSocialMediaPromotions\":true}, \"communityRequest\":{\"communityReqId\":1,\"communityStatus\":\"REJECTED\",\"rejectedReason\":\"therapist does not have a bachelors degree\"}," +
                 "\"isMigrationExperience\":true,\"isOpenToAdjustRate\":true}]";
 
-        mockMvc.perform(patch("/community/update-status")
+        mockMvc.perform(patch("/community/join-request/status")
                         .contentType(MediaType.APPLICATION_JSON).
                         content(json))
                 .andExpect(status().isOk());
@@ -105,7 +105,7 @@ class CommunityControllerSpringTest {
     @Order(5)
     void updateEmptyCommunityStatusTest() throws Exception {
         String json = "[]";
-        mockMvc.perform(patch("/community/update-status")
+        mockMvc.perform(patch("/community/join-request/status")
                         .contentType(MediaType.APPLICATION_JSON).
                         content(json))
                 .andExpect(status().isBadRequest());
